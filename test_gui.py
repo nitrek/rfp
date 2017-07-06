@@ -3,6 +3,7 @@ from sklearn.externals import joblib
 from sklearn.feature_extraction.text import HashingVectorizer
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
+from nltk.corpus import wordnet as wn
 import string;
 
 def stem(sentence):
@@ -25,6 +26,22 @@ def getScore(que):
       for y in stemmed_que:
          if x==y:
             score = score+1;
+            print("hello")
+            print(x)
+
+   for x in question:
+      synonyms = []
+      for ss in wn.synsets(x):
+         for sy in ss.lemma_names():
+            synonyms.append(sy)  
+
+      synonyms = list(set(synonyms))
+      for y in stemmed_que:
+         for syn in synonyms:       
+            if syn==y:
+               score = score+1;
+               print("hi")
+               print(x)
 
    return score;
 
