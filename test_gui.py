@@ -46,7 +46,27 @@ def getScore(que):
    return score;
 
 
+def getHigh(lst):
+   first_best = float("-inf");
+   second_best = float("-inf");
+   third_best = float("-inf");
+   first_index = 0;
+   second_index = 0;
+   third_index = 0;
 
+   for x in xrange(0,len(lst)):
+      score = lst[x];
+      if score>first_best:
+         first_index = x;
+         first_best = score;
+      elif score>second_best:
+         second_index = x;
+         second_best = score;
+      elif score>third_best:
+         third_index=x;
+         third_best = score;
+
+   return [first_index,second_index,third_index]   
 
 def getBest(ans):
    size = len(my_dict[ans]);
@@ -79,26 +99,50 @@ def onClick(i):
    if i==0:
       text = entry.get()
       last_question = stem(text);
+      print(last_question)
       x_test = vectorizer.transform([last_question]);
-      #prob = clf.decision_function(x_test);
+      prob = clf.decision_function(x_test);
       #print(prob[0])
 
-      last_answer = clf.predict(x_test)[0];
-      print(last_answer);
+      #last_answer = clf.predict(x_test)[0];
+      #print(last_answer);
 
-      rank = getBest(last_answer);
+      category_rank = getHigh(prob[0]);
+      b11["text"] = clf.classes_[category_rank[0]];
+      b12["text"] = clf.classes_[category_rank[1]];
+      b13["text"] = clf.classes_[category_rank[2]];
 
-      b1["text"] = my_dict[last_answer][rank[0]];
-      b2["text"] = my_dict[last_answer][rank[1]];
-      b3["text"] = my_dict[last_answer][rank[2]];
-
-      clf.partial_fit(vectorizer.transform([last_question]),[last_answer]);
+      #clf.partial_fit(vectorizer.transform([last_question]),[last_answer]);
    elif i==1:
       res.configure(text = b1["text"]);
    elif i==2:
       res.configure(text = b2["text"]);
    elif i==3:
       res.configure(text = b3["text"]);
+   elif i==11:
+      rank = getBest(b11["text"]);
+
+      b1["text"] = my_dict[b11["text"]][rank[0]];
+      b2["text"] = my_dict[b11["text"]][rank[1]];
+      b3["text"] = my_dict[b11["text"]][rank[2]];
+
+      clf.partial_fit(vectorizer.transform([last_question]),[b11["text"]]);
+   elif i==12:
+      rank = getBest(b12["text"]);
+
+      b1["text"] = my_dict[b12["text"]][rank[0]];
+      b2["text"] = my_dict[b12["text"]][rank[1]];
+      b3["text"] = my_dict[b12["text"]][rank[2]];
+
+      clf.partial_fit(vectorizer.transform([last_question]),[b11["text"]]);
+   elif i==13:
+      rank = getBest(b13["text"]);
+
+      b1["text"] = my_dict[b13["text"]][rank[0]];
+      b2["text"] = my_dict[b13["text"]][rank[1]];
+      b3["text"] = my_dict[b13["text"]][rank[2]];   
+
+      clf.partial_fit(vectorizer.transform([last_question]),[b11["text"]]);
    return
 
 
@@ -126,15 +170,27 @@ if __name__ == '__main__':
    root.configure(background='lightblue')
    root.title("Mahdihusain Momin")
    Label(root, text="ASK ME", bg="lightblue").pack()
-   entry = Entry(root, width=75)
+   entry = Entry(root, width=200)
    entry.pack()
-   b0 = Button(root, text='Get Answer', height=2, width=25, command=lambda i=0: onClick(0), bg="gold")
-   b0.pack()
-   b1 = Button(root,text='Suggestion 1', height=2, width=75,command=lambda i=1: onClick(1), bg="lightgreen")
+   #categories
+   b10 = Button(root, text='Get Answer', height=2, width=25, command=lambda i=0: onClick(0), bg="gold")
+   b10.pack()
+   b11 = Button(root,text='Category 1', height=2, width=200,command=lambda i=11: onClick(11), bg="lightgreen")
+   b11.pack()
+   b12 = Button(root,text='Category 2', height=2, width=200, command=lambda i=12: onClick(12), bg="lightgreen")
+   b12.pack()
+   b13 = Button(root,text='Category 3', height=2, width=200, command=lambda i=13: onClick(13), bg="lightgreen")
+   b13.pack()
+   res1 = Label(root, bg="lightblue")
+   res1.pack()
+   res2 = Label(root, bg="lightblue")
+   res2.pack()
+   #insidecategories
+   b1 = Button(root,text='Suggestion 1', height=2, width=200,command=lambda i=1: onClick(1), bg="lightgreen")
    b1.pack()
-   b2 = Button(root,text='Suggestion 2', height=2, width=75, command=lambda i=2: onClick(2), bg="lightgreen")
+   b2 = Button(root,text='Suggestion 2', height=2, width=200, command=lambda i=2: onClick(2), bg="lightgreen")
    b2.pack()
-   b3 = Button(root,text='Suggestion 3', height=2, width=75, command=lambda i=3: onClick(3), bg="lightgreen")
+   b3 = Button(root,text='Suggestion 3', height=2, width=200, command=lambda i=3: onClick(3), bg="lightgreen")
    b3.pack()
    res = Label(root, bg="lightblue")
    res.pack()
