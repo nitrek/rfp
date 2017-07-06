@@ -13,75 +13,81 @@ def stem(sentence):
    for plural in sentence.split():
        singles.append(lmtzr.lemmatize(plural))
    sentence = ' '.join(singles)  
-   return sentence; 
+   return sentence;       
 
 
-def getTop(lst):
-   first_index=0;
-   second_index=0;
-   third_index=0;
-   first_value=float("-inf");
-   second_value=float("-inf");
-   third_value=float("-inf");
+def getScore(que):
+   stemmed_que = stem(que).split(" ");
+   question = last_question.split(" ");
 
-   for x in xrange(0,len(lst)):
-      if lst[x]>first_value:
-         first_value=lst[x];
-         first_index=x;
-      elif lst[x]>second_value:
-         second_value=lst[x];
-         second_index=x;
-      elif lst[x]>third_value:
-         third_value=lst[x];
+   score = 0;
+   for x in question:
+      for y in stemmed_que:
+         if x==y:
+            score = score+1;
+
+   return score;
+
+
+
+
+def getBest(ans):
+   size = len(my_dict[ans]);
+
+   first_best = float("-inf");
+   second_best = float("-inf");
+   third_best = float("-inf");
+   first_index = 0;
+   second_index = 0;
+   third_index = 0;
+
+   for x in xrange(0,size):
+      score = getScore(my_dict[ans][x]);
+      if score>first_best:
+         first_index = x;
+         first_best = score;
+      elif score>second_best:
+         second_index = x;
+         second_best = score;
+      elif score>third_best:
          third_index=x;
+         third_best = score;
 
-   return [(first_index,first_value), (second_index,second_value), (third_index,third_value)];
-      
+   return [first_index,second_index,third_index]
 
 
 def onClick(i):
-   global last_question, first_value, second_value, third_value;
+   global last_question;
 
    if i==0:
       text = entry.get()
       last_question = stem(text);
       x_test = vectorizer.transform([last_question]);
-      prob = clf.decision_function(x_test);
-      print(prob[0])
+      #prob = clf.decision_function(x_test);
+      #print(prob[0])
 
       last_answer = clf.predict(x_test)[0];
       print(last_answer);
 
-      topthree = getTop(prob[0]);
-      first_index,first_value = topthree[0];
-      second_index,second_value = topthree[1];
-      third_index,third_value = topthree[2];
+      rank = getBest(last_answer);
 
-      b1["text"] = clf.classes_[first_index];
-      b2["text"] = clf.classes_[second_index];
-      b3["text"] = clf.classes_[third_index];
+      b1["text"] = my_dict[last_answer][rank[0]];
+      b2["text"] = my_dict[last_answer][rank[1]];
+      b3["text"] = my_dict[last_answer][rank[2]];
+
+      clf.partial_fit(vectorizer.transform([last_question]),[last_answer]);
    elif i==1:
       res.configure(text = b1["text"]);
-      if first_value>-1:
-         print("reinforced")
-         clf.partial_fit(vectorizer.transform([last_question]),[b1["text"]]);
    elif i==2:
       res.configure(text = b2["text"]);
-      if second_value>-1:
-         print("reinforced")
-         clf.partial_fit(vectorizer.transform([last_question]),[b2["text"]]);
    elif i==3:
       res.configure(text = b3["text"]);
-      if third_value>-1:
-         print("reinforced")
-         clf.partial_fit(vectorizer.transform([last_question]),[b3["text"]]);
-
    return
 
 
 def quit():
-   #joblib.dump(clf, 'clf.pkl')
-   #joblib.dump(vectorizer, 'vectorizer.pkl') 
+   joblib.dump(clf, 'clf.pkl')
+   joblib.dump(vectorizer, 'vectorizer.pkl') 
    root.destroy()
    print("bot closed") 
 
@@ -94,12 +100,10 @@ if __name__ == '__main__':
 
    clf = joblib.load('clf.pkl') 
    vectorizer = joblib.load('vectorizer.pkl')
+   my_dict = joblib.load('my_dict.pkl')
 
    last_answer = "";
    last_question = "";
-   first_value=float("-inf");
-   second_value=float("-inf");
-   third_value=float("-inf");
 
    root = Tk()
    root.configure(background='lightblue')

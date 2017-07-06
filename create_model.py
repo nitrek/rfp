@@ -10,7 +10,7 @@ from time import time
 
 t0 = time()
 
-punc = string.punctuation.translate(None, "':");
+punc = string.punctuation.translate(None, ",");
 
 replace_punctuation = string.maketrans(punc, ' '*len(punc));
 operators = set(["why","what","how","when","where","who","which","whose","whom","whether","whatsoever","whither","whence"])
@@ -19,16 +19,29 @@ stop = set(stopwords.words('english'))-operators;
 with open('questions', 'r') as qfile:
     questions = qfile.readlines();
 
-questions = [x.strip().lower().translate(replace_punctuation) for x in questions];
 qfile.close();
+
+questions = [x.strip()for x in questions];
 
 answers = [];
 
+my_dict = {};
+
 for x in xrange(0,len(questions)):
-	que = questions[x].split(" ");
+	que = questions[x].split(",");
 	answers.append(que[0]);
 	questions[x] = " ".join(que[1:]);
 
+	if my_dict.has_key(que[0]):
+		my_dict[que[0]].append(questions[x]);
+	else:
+		my_dict[que[0]] = [];
+		my_dict[que[0]].append(questions[x]);
+
+
+joblib.dump(my_dict, 'my_dict.pkl')
+
+questions = [x.lower().translate(replace_punctuation) for x in questions];
 
 for line in xrange(0,len(questions)):
     questions[line] = ' '.join([word for word in questions[line].split() if word not in (stop)]);
@@ -45,7 +58,7 @@ nltk_questions = [];
 nltk_answers = [];
 
 for sentence in xrange(0,len(questions)):
-	print(sentence);
+	#print(sentence);
 	list_x = questions[sentence].split(" ");
 
 	list_of_list = [];
@@ -70,12 +83,12 @@ for sentence in xrange(0,len(questions)):
 	    nltk_answers.append(answers[sentence])		
 
 			
-nltk_questions = [x.strip() for x in nltk_questions];
+nltk_questions = [x.strip().lower().replace("_", " ")for x in nltk_questions];
+
 
 vectorizer = HashingVectorizer(ngram_range=(1,2));
 
 answers.extend(nltk_answers);
-#y_train= vectorizer.transform(answers);
 y_train = answers;
 #print(y_train)
 
@@ -87,11 +100,11 @@ print(len(questions))
 X_train = vectorizer.transform(questions);
 
 clf = PassiveAggressiveClassifier();
-score = cross_val_score(clf, X_train, y_train, cv=5).mean();
-print(score)
-#clf.fit(X_train, y_train);
+#score = cross_val_score(clf, X_train, y_train, cv=5).mean();
+#print(score)
+clf.fit(X_train, y_train);
 
-#joblib.dump(clf, 'clf.pkl')
-#joblib.dump(vectorizer, 'vectorizer.pkl') 
+joblib.dump(clf, 'clf.pkl')
+joblib.dump(vectorizer, 'vectorizer.pkl') 
 total_time = time()-t0;
 print(total_time);
