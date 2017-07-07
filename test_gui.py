@@ -43,7 +43,7 @@ def getScore(que):
                print("hi")
                print(x)
 
-   return score;
+   return (score*len(question)/len(stemmed_que));
 
 
 def getHigh(lst):
