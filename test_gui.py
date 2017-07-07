@@ -114,11 +114,11 @@ def onClick(i):
 
       #clf.partial_fit(vectorizer.transform([last_question]),[last_answer]);
    elif i==1:
-      res.configure(text = b1["text"]);
+      res.configure(text = search(b1["text"]));
    elif i==2:
-      res.configure(text = b2["text"]);
+      res.configure(text = search(b2["text"]));
    elif i==3:
-      res.configure(text = b3["text"]);
+      res.configure(text = search(b3["text"]));
    elif i==11:
       rank = getBest(b11["text"]);
 
@@ -159,8 +159,29 @@ def quit():
    root.destroy()
    print("bot closed") 
 
+def search(que):
+   que = que.replace(",", " ")
+   for x in xrange(0,len(q)):
+      if que==q[x]:
+         return a[x];
+
+   return "answer not found";
+
 
 if __name__ == '__main__':
+
+   with open('qa', 'r') as qfile:
+       qa = qfile.readlines();
+
+   qfile.close();
+
+   q = [];
+   a = []
+   for x in qa:
+      [qq,aa] = x.split(",")
+      q.append(qq)
+      a.append(aa)
+
    punc = string.punctuation.translate(None, "'");
    replace_punctuation = string.maketrans(punc, ' '*len(punc));
    operators = set(["why","what","how","when","where","who","which","whose","whom","whether","whatsoever","whither","whence"])
