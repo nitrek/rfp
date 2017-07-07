@@ -29,14 +29,14 @@ my_dict = {};
 
 for x in xrange(0,len(questions)):
 	que = questions[x].split(",");
-	answers.append(que[0]);
-	questions[x] = " ".join(que[1:]);
+	answers.append("-".join(que[0:2]));
+	questions[x] = " ".join(que[2:]);
 
-	if my_dict.has_key(que[0]):
-		my_dict[que[0]].append(questions[x]);
+	if my_dict.has_key("-".join(que[0:2])):
+		my_dict["-".join(que[0:2])].append(questions[x]);
 	else:
-		my_dict[que[0]] = [];
-		my_dict[que[0]].append(questions[x]);
+		my_dict["-".join(que[0:2])] = [];
+		my_dict["-".join(que[0:2])].append(questions[x]);
 
 
 joblib.dump(my_dict, 'my_dict.pkl')
