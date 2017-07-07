@@ -139,7 +139,7 @@ def onClick(i):
 
       res2.configure(text = b12["text"])
 
-      clf.partial_fit(vectorizer.transform([last_question]),[b11["text"]]);
+      clf.partial_fit(vectorizer.transform([last_question]),[b12["text"]]);
    elif i==13:
       rank = getBest(b13["text"]);
 
@@ -149,7 +149,7 @@ def onClick(i):
 
       res2.configure(text = b13["text"])
 
-      clf.partial_fit(vectorizer.transform([last_question]),[b11["text"]]);
+      clf.partial_fit(vectorizer.transform([last_question]),[b13["text"]]);
    return
 
 
