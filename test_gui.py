@@ -1,3 +1,4 @@
+from __future__ import division
 from Tkinter import *;
 from sklearn.externals import joblib
 from sklearn.feature_extraction.text import HashingVectorizer
@@ -6,6 +7,7 @@ from nltk.corpus import stopwords
 from nltk.corpus import wordnet as wn
 import string;
 import math
+
 
 def stem(sentence):
    sentence = sentence.lower().translate(replace_punctuation)
@@ -110,6 +112,12 @@ def onClick(i):
       #print(last_answer);
 
       category_rank = getHigh(prob);
+
+      if prob[category_rank[0]]<(100/len(clf.classes_))+1:
+         b11["text"] = "bad question" + "    " + str(prob[category_rank[0]]*100);
+         b12["text"] = "bad question" + "    " + str(prob[category_rank[1]]*100);
+         b13["text"] = "bad question" + "    " + str(prob[category_rank[2]]*100);
+
       b11["text"] = clf.classes_[category_rank[0]] + "    " + str(prob[category_rank[0]]*100);
       b12["text"] = clf.classes_[category_rank[1]] + "    " + str(prob[category_rank[1]]*100);
       b13["text"] = clf.classes_[category_rank[2]] + "    " + str(prob[category_rank[2]]*100);
@@ -121,11 +129,11 @@ def onClick(i):
 
       #clf.partial_fit(vectorizer.transform([last_question]),[last_answer]);
    elif i==1:
-      res.configure(text = b1["text"]);
+      print_ans(b1["text"]);
    elif i==2:
-      res.configure(text = b2["text"]);
+      print_ans(b2["text"]);
    elif i==3:
-      res.configure(text = b3["text"]);
+      print_ans(b3["text"]);
    elif i==11:
       rank = getBest(b11["text"]);
 
@@ -166,6 +174,17 @@ def quit():
    root.destroy()
    print("bot closed") 
 
+
+def print_ans(ans):
+   for x in xrange(0,len(ans)):
+      if x<60:
+         res_ans1.configure(text = ans[x])
+      elif x<120:
+         res_ans2.configure(text = ans[x])
+      elif x<180:
+         res_ans3.configure(text = ans[x])
+      elif x<240:
+         res_ans4.configure(text=ans[x])
 
 def sigmoid(lst):
    sum = 0;
@@ -228,5 +247,17 @@ if __name__ == '__main__':
    b3.pack()
    res = Label(root, bg="lightblue")
    res.pack()
+   res_ans = Label(root, bg="lightblue")
+   res_ans.pack()
+   res_ans1 = Label(root, bg="lightblue")
+   res_ans1.pack()
+   res_ans2 = Label(root, bg="lightblue")
+   res_ans2.pack()
+   res_ans3 = Label(root, bg="lightblue")
+   res_ans3.pack()
+   res_ans4 = Label(root, bg="lightblue")
+   res_ans4.pack()
+   res_ans5 = Label(root, bg="lightblue")
+   res_ans5.pack()
    root.protocol('WM_DELETE_WINDOW', quit)
    root.mainloop()
