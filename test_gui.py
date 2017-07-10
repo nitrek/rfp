@@ -29,8 +29,7 @@ def getScore(que):
       for y in stemmed_que:
          if x==y:
             score = score+1;
-            print("hello")
-            print(x)
+            print((x,y))
 
    for x in question:
       synonyms = []
@@ -41,59 +40,11 @@ def getScore(que):
       synonyms = list(set(synonyms))
       for y in stemmed_que:
          for syn in synonyms:       
-            if syn==y:
+            if syn==y and x!=y:
                score = score+1;
-               print("hi")
-               print(x)
+               print((x,y))
 
-   return (score*len(question)/len(stemmed_que));
-
-
-def getHigh(lst):
-   first_best = float("-inf");
-   second_best = float("-inf");
-   third_best = float("-inf");
-   first_index = 0;
-   second_index = 0;
-   third_index = 0;
-
-   for x in xrange(0,len(lst)):
-      score = lst[x];
-      if score>first_best:
-         first_index = x;
-         first_best = score;
-      elif score>second_best:
-         second_index = x;
-         second_best = score;
-      elif score>third_best:
-         third_index=x;
-         third_best = score;
-
-   return [first_index,second_index,third_index]   
-
-def getBest(ans):
-   size = len(my_dict[ans]);
-
-   first_best = float("-inf");
-   second_best = float("-inf");
-   third_best = float("-inf");
-   first_index = 0;
-   second_index = 0;
-   third_index = 0;
-
-   for x in xrange(0,size):
-      score = getScore(my_dict[ans][x]);
-      if score>first_best:
-         first_index = x;
-         first_best = score;
-      elif score>second_best:
-         second_index = x;
-         second_best = score;
-      elif score>third_best:
-         third_index=x;
-         third_best = score;
-
-   return [first_index,second_index,third_index]
+   return (score*len(question))/len(stemmed_que);
 
 
 def onClick(i):
@@ -103,64 +54,18 @@ def onClick(i):
       newQuery()
       text = entry.get()
       last_question = stem(text);
-      #print(last_question)
+      print(last_question)
       x_test = vectorizer.transform([last_question]);
       prob = clf.decision_function(x_test);
       prob = sigmoid(prob[0]);
 
-      category_rank = getHigh(prob);
+      OPTIONS = list(clf.classes_);      
+      for x in xrange(0,len(prob)):
+         OPTIONS[x] = OPTIONS[x] + "     " + str(prob[x]);
 
-      if prob[category_rank[0]]<(100/len(clf.classes_))+1:
-         print(prob[category_rank[0]])
-         print((100/len(clf.classes_)))
-         b11["text"] = clf.classes_[category_rank[0]] + "     " + str(prob[category_rank[0]]);
-         b12["text"] = clf.classes_[category_rank[1]] + "     " + str(prob[category_rank[1]]);
-         b13["text"] = clf.classes_[category_rank[2]] + "     " + str(prob[category_rank[2]]);
+      OPTIONS = [x for (y,x) in sorted(zip(prob,OPTIONS), reverse=True)]
+      reset_option_menu(OPTIONS, 0)
 
-      b11["text"] = clf.classes_[category_rank[0]] + "     " + str(prob[category_rank[0]]);
-      b12["text"] = clf.classes_[category_rank[1]] + "     " + str(prob[category_rank[1]]);
-      b13["text"] = clf.classes_[category_rank[2]] + "     " + str(prob[category_rank[2]]);
-
-
-      #clf.partial_fit(vectorizer.transform([last_question]),[last_answer]);
-   elif i==1:
-      print_ans(b1["text"]);
-   elif i==2:
-      print_ans(b2["text"]);
-   elif i==3:
-      print_ans(b3["text"]);
-   elif i==11:
-      rank = getBest((b11["text"].split("    "))[0]);
-
-      b1["text"] = my_dict[(b11["text"].split("    "))[0]][rank[0]];
-      b2["text"] = my_dict[(b11["text"].split("    "))[0]][rank[1]];
-      b3["text"] = my_dict[(b11["text"].split("    "))[0]][rank[2]];
-
-      res2.configure(text = b11["text"])
-
-      #clf.partial_fit(vectorizer.transform([last_question]),[b11["text"]]);
-
-   elif i==12:
-      rank = getBest((b12["text"].split("    "))[0]);
-
-      b1["text"] = my_dict[(b12["text"].split("    "))[0]][rank[0]];
-      b2["text"] = my_dict[(b12["text"].split("    "))[0]][rank[1]];
-      b3["text"] = my_dict[(b12["text"].split("    "))[0]][rank[2]];
-
-      res2.configure(text = b12["text"])
-
-      #clf.partial_fit(vectorizer.transform([last_question]),[b12["text"]]);
-   elif i==13:
-      rank = getBest((b13["text"].split("    "))[0]);
-
-      b1["text"] = my_dict[(b13["text"].split("    "))[0]][rank[0]];
-      b2["text"] = my_dict[(b13["text"].split("    "))[0]][rank[1]];
-      b3["text"] = my_dict[(b13["text"].split("    "))[0]][rank[2]];   
-
-      res2.configure(text = b13["text"])
-
-      #clf.partial_fit(vectorizer.transform([last_question]),[b13["text"]]);
-   return
 
 
 def quit():
@@ -171,11 +76,12 @@ def quit():
 
 
 def print_ans(ans):
-   res_ans.configure(text = ans[:60]);
-   res_ans1.configure(text = ans[60:120]);
-   res_ans2.configure(text = ans[120:180]);
-   res_ans3.configure(text = ans[180:240]);
-   res_ans4.configure(text = ans[240:300]);
+   margin = 100;
+   res_ans.configure(text = ans[:margin]);
+   res_ans1.configure(text = ans[margin:margin+100]);
+   res_ans2.configure(text = ans[margin+100:margin+200]);
+   res_ans3.configure(text = ans[margin+200:margin+300]);
+   res_ans4.configure(text = ans[margin+300:margin+400]);
 
 def sigmoid(lst):
    sum = 0;
@@ -190,15 +96,53 @@ def sigmoid(lst):
 
 
 def newQuery():
-   res2.configure(text = "")
    res_ans.configure(text = "")
    res_ans1.configure(text = "")
    res_ans2.configure(text = "")
    res_ans3.configure(text = "")
    res_ans4.configure(text = "")
-   b1["text"] = "Suggestion 1";
-   b2["text"] = "Suggestion 2";
-   b3["text"] = "Suggestion 3";
+
+# on change dropdown value
+def change_dropdown(*args):
+   qOPTIONS = list(my_dict[((variable.get()).split("    "))[0]]);   
+   prob = []; 
+   sum = 0.01;
+   for x in xrange(0,len(qOPTIONS)):
+      score = getScore(qOPTIONS[x]);
+      prob.append(score)
+      sum = sum + score;
+
+   for x in xrange(0,len(qOPTIONS)):
+      prob[x] = prob[x]*100/sum;
+      qOPTIONS[x] = qOPTIONS[x] + "     " + str(prob[x]);
+
+   qOPTIONS = [x for (y,x) in sorted(zip(prob,qOPTIONS), reverse=True)]  
+   qreset_option_menu(qOPTIONS, 0)
+
+
+# on change dropdown value
+def qchange_dropdown(*args):
+   print_ans(qvariable.get());
+
+def reset_option_menu(options, index=None):
+   menu = w["menu"]
+   menu.delete(0, "end")
+   for string in options:
+      menu.add_command(label=string, 
+                       command=lambda value=string:
+                            variable.set(value))
+   if index is not None:
+      variable.set(options[index])
+
+def qreset_option_menu(options, index=None):
+   menu = qw["menu"]
+   menu.delete(0, "end")
+   for string in options:
+      menu.add_command(label=string, 
+                       command=lambda value=string:
+                            qvariable.set(value))
+   if index is not None:
+      qvariable.set(options[index])
 
 if __name__ == '__main__':
 
@@ -211,7 +155,6 @@ if __name__ == '__main__':
    vectorizer = joblib.load('vectorizer.pkl')
    my_dict = joblib.load('my_dict.pkl')
 
-   last_answer = "";
    last_question = "";
 
    root = Tk()
@@ -227,25 +170,7 @@ if __name__ == '__main__':
    b10.pack()
    gap1 = Label(root, bg="lightblue")
    gap1.pack()
-   b11 = Button(root,text='Category 1', height=2, width=200,command=lambda i=11: onClick(11), bg="lightgreen")
-   b11.pack()
-   b12 = Button(root,text='Category 2', height=2, width=200, command=lambda i=12: onClick(12), bg="lightgreen")
-   b12.pack()
-   b13 = Button(root,text='Category 3', height=2, width=200, command=lambda i=13: onClick(13), bg="lightgreen")
-   b13.pack()
-   res1 = Label(root, bg="lightblue")
-   res1.pack()
-   res2 = Label(root, bg="lightblue")
-   res2.pack()
-   res3 = Label(root, bg="lightblue")
-   res3.pack()
-   #insidecategories
-   b1 = Button(root,text='Suggestion 1', height=2, width=200,command=lambda i=1: onClick(1), bg="lightsalmon")
-   b1.pack()
-   b2 = Button(root,text='Suggestion 2', height=2, width=200, command=lambda i=2: onClick(2), bg="lightsalmon")
-   b2.pack()
-   b3 = Button(root,text='Suggestion 3', height=2, width=200, command=lambda i=3: onClick(3), bg="lightsalmon")
-   b3.pack()
+
    res = Label(root, bg="lightblue")
    res.pack()
    res_ans = Label(root, bg="lightblue")
@@ -260,5 +185,29 @@ if __name__ == '__main__':
    res_ans4.pack()
    res_ans5 = Label(root, bg="lightblue")
    res_ans5.pack()
+
+   OPTIONS = clf.classes_;
+
+   variable = StringVar(root)
+   variable.set(OPTIONS[0]) # default value
+
+   w = apply(OptionMenu, (root, variable) + tuple(OPTIONS))
+
+   variable.trace('w', change_dropdown)
+   w.pack()
+
+   qOPTIONS = ["que"];
+   qvariable = StringVar(root)
+   qvariable.set(qOPTIONS[0]) # default value
+
+   qw = apply(OptionMenu, (root, qvariable) + tuple(qOPTIONS))
+
+   qvariable.trace('w', qchange_dropdown)
+   qw.pack()
+
    root.protocol('WM_DELETE_WINDOW', quit)
    root.mainloop()
+
+
+
+
