@@ -100,31 +100,26 @@ def onClick(i):
    global last_question;
 
    if i==0:
+      newQuery()
       text = entry.get()
       last_question = stem(text);
-      print(last_question)
+      #print(last_question)
       x_test = vectorizer.transform([last_question]);
       prob = clf.decision_function(x_test);
       prob = sigmoid(prob[0]);
-      print(prob)
-
-      #last_answer = clf.predict(x_test)[0];
-      #print(last_answer);
 
       category_rank = getHigh(prob);
 
       if prob[category_rank[0]]<(100/len(clf.classes_))+1:
-         b11["text"] = "bad question" + "    " + str(prob[category_rank[0]]*100);
-         b12["text"] = "bad question" + "    " + str(prob[category_rank[1]]*100);
-         b13["text"] = "bad question" + "    " + str(prob[category_rank[2]]*100);
+         print(prob[category_rank[0]])
+         print((100/len(clf.classes_)))
+         b11["text"] = clf.classes_[category_rank[0]] + "     " + str(prob[category_rank[0]]);
+         b12["text"] = clf.classes_[category_rank[1]] + "     " + str(prob[category_rank[1]]);
+         b13["text"] = clf.classes_[category_rank[2]] + "     " + str(prob[category_rank[2]]);
 
-      b11["text"] = clf.classes_[category_rank[0]] + "    " + str(prob[category_rank[0]]*100);
-      b12["text"] = clf.classes_[category_rank[1]] + "    " + str(prob[category_rank[1]]*100);
-      b13["text"] = clf.classes_[category_rank[2]] + "    " + str(prob[category_rank[2]]*100);
-
-      #print(prob[category_rank[0]])
-      #print(prob[category_rank[1]])
-      #print(prob[category_rank[2]])
+      b11["text"] = clf.classes_[category_rank[0]] + "     " + str(prob[category_rank[0]]);
+      b12["text"] = clf.classes_[category_rank[1]] + "     " + str(prob[category_rank[1]]);
+      b13["text"] = clf.classes_[category_rank[2]] + "     " + str(prob[category_rank[2]]);
 
 
       #clf.partial_fit(vectorizer.transform([last_question]),[last_answer]);
@@ -135,36 +130,36 @@ def onClick(i):
    elif i==3:
       print_ans(b3["text"]);
    elif i==11:
-      rank = getBest(b11["text"]);
+      rank = getBest((b11["text"].split("    "))[0]);
 
-      b1["text"] = my_dict[b11["text"]][rank[0]];
-      b2["text"] = my_dict[b11["text"]][rank[1]];
-      b3["text"] = my_dict[b11["text"]][rank[2]];
+      b1["text"] = my_dict[(b11["text"].split("    "))[0]][rank[0]];
+      b2["text"] = my_dict[(b11["text"].split("    "))[0]][rank[1]];
+      b3["text"] = my_dict[(b11["text"].split("    "))[0]][rank[2]];
 
       res2.configure(text = b11["text"])
 
-      clf.partial_fit(vectorizer.transform([last_question]),[b11["text"]]);
+      #clf.partial_fit(vectorizer.transform([last_question]),[b11["text"]]);
 
    elif i==12:
-      rank = getBest(b12["text"]);
+      rank = getBest((b12["text"].split("    "))[0]);
 
-      b1["text"] = my_dict[b12["text"]][rank[0]];
-      b2["text"] = my_dict[b12["text"]][rank[1]];
-      b3["text"] = my_dict[b12["text"]][rank[2]];
+      b1["text"] = my_dict[(b12["text"].split("    "))[0]][rank[0]];
+      b2["text"] = my_dict[(b12["text"].split("    "))[0]][rank[1]];
+      b3["text"] = my_dict[(b12["text"].split("    "))[0]][rank[2]];
 
       res2.configure(text = b12["text"])
 
-      clf.partial_fit(vectorizer.transform([last_question]),[b12["text"]]);
+      #clf.partial_fit(vectorizer.transform([last_question]),[b12["text"]]);
    elif i==13:
-      rank = getBest(b13["text"]);
+      rank = getBest((b13["text"].split("    "))[0]);
 
-      b1["text"] = my_dict[b13["text"]][rank[0]];
-      b2["text"] = my_dict[b13["text"]][rank[1]];
-      b3["text"] = my_dict[b13["text"]][rank[2]];   
+      b1["text"] = my_dict[(b13["text"].split("    "))[0]][rank[0]];
+      b2["text"] = my_dict[(b13["text"].split("    "))[0]][rank[1]];
+      b3["text"] = my_dict[(b13["text"].split("    "))[0]][rank[2]];   
 
       res2.configure(text = b13["text"])
 
-      clf.partial_fit(vectorizer.transform([last_question]),[b13["text"]]);
+      #clf.partial_fit(vectorizer.transform([last_question]),[b13["text"]]);
    return
 
 
@@ -176,15 +171,11 @@ def quit():
 
 
 def print_ans(ans):
-   for x in xrange(0,len(ans)):
-      if x<60:
-         res_ans1.configure(text = ans[x])
-      elif x<120:
-         res_ans2.configure(text = ans[x])
-      elif x<180:
-         res_ans3.configure(text = ans[x])
-      elif x<240:
-         res_ans4.configure(text=ans[x])
+   res_ans.configure(text = ans[:60]);
+   res_ans1.configure(text = ans[60:120]);
+   res_ans2.configure(text = ans[120:180]);
+   res_ans3.configure(text = ans[180:240]);
+   res_ans4.configure(text = ans[240:300]);
 
 def sigmoid(lst):
    sum = 0;
@@ -193,11 +184,21 @@ def sigmoid(lst):
       sum += lst[x];
 
    for x in xrange(0,len(lst)):
-      lst[x] = lst[x]/sum;
+      lst[x] = (lst[x]/sum)*100;
 
    return lst;
 
 
+def newQuery():
+   res2.configure(text = "")
+   res_ans.configure(text = "")
+   res_ans1.configure(text = "")
+   res_ans2.configure(text = "")
+   res_ans3.configure(text = "")
+   res_ans4.configure(text = "")
+   b1["text"] = "Suggestion 1";
+   b2["text"] = "Suggestion 2";
+   b3["text"] = "Suggestion 3";
 
 if __name__ == '__main__':
 
