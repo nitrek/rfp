@@ -5,6 +5,7 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet as wn
 import string;
+import math
 
 def stem(sentence):
    sentence = sentence.lower().translate(replace_punctuation)
@@ -102,15 +103,21 @@ def onClick(i):
       print(last_question)
       x_test = vectorizer.transform([last_question]);
       prob = clf.decision_function(x_test);
-      #print(prob[0])
+      prob = sigmoid(prob[0]);
+      print(prob)
 
       #last_answer = clf.predict(x_test)[0];
       #print(last_answer);
 
-      category_rank = getHigh(prob[0]);
-      b11["text"] = clf.classes_[category_rank[0]];
-      b12["text"] = clf.classes_[category_rank[1]];
-      b13["text"] = clf.classes_[category_rank[2]];
+      category_rank = getHigh(prob);
+      b11["text"] = clf.classes_[category_rank[0]] + "    " + str(prob[category_rank[0]]*100);
+      b12["text"] = clf.classes_[category_rank[1]] + "    " + str(prob[category_rank[1]]*100);
+      b13["text"] = clf.classes_[category_rank[2]] + "    " + str(prob[category_rank[2]]*100);
+
+      #print(prob[category_rank[0]])
+      #print(prob[category_rank[1]])
+      #print(prob[category_rank[2]])
+
 
       #clf.partial_fit(vectorizer.transform([last_question]),[last_answer]);
    elif i==1:
@@ -158,6 +165,19 @@ def quit():
    joblib.dump(vectorizer, 'vectorizer.pkl') 
    root.destroy()
    print("bot closed") 
+
+
+def sigmoid(lst):
+   sum = 0;
+   for x in xrange(0,len(lst)):
+      lst[x] = 1 / (1 + math.exp(-lst[x]))
+      sum += lst[x];
+
+   for x in xrange(0,len(lst)):
+      lst[x] = lst[x]/sum;
+
+   return lst;
+
 
 
 if __name__ == '__main__':
