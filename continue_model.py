@@ -4,6 +4,7 @@ from nltk.corpus import wordnet as wn
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
 import string;
+import numpy as np;
 from sklearn.model_selection import cross_val_score
 from sklearn.linear_model import PassiveAggressiveClassifier
 from time import time
@@ -12,6 +13,7 @@ from time import time
 clf = joblib.load('clf.pkl') 
 vectorizer = joblib.load('vectorizer.pkl')
 my_dict = joblib.load('my_dict.pkl')
+sol_dict = joblib.load('sol_dict.pkl')
 
 t0 = time()
 
@@ -32,8 +34,10 @@ answers = [];
 
 for x in xrange(0,len(questions)):
 	que = questions[x].split(",");
-	answers.append("-".join(que[0:2]));
-	questions[x] = " ".join(que[2:]);
+	ans = "-".join(que[0:2]);
+
+	answers.append(ans);
+	questions[x] = " ".join(que[2:len(que)-1]);
 
 	if my_dict.has_key("-".join(que[0:2])):
 		my_dict["-".join(que[0:2])].append(questions[x]);
@@ -41,8 +45,12 @@ for x in xrange(0,len(questions)):
 		my_dict["-".join(que[0:2])] = [];
 		my_dict["-".join(que[0:2])].append(questions[x]);
 
+	print(que[-1])
+	print(questions[x])
+	sol_dict[questions[x]] = que[-1];
 
 joblib.dump(my_dict, 'my_dict.pkl')
+joblib.dump(sol_dict,'sol_dict.pkl')
 
 questions = [x.lower().translate(replace_punctuation) for x in questions];
 

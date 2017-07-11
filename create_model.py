@@ -26,11 +26,12 @@ questions = [x.strip()for x in questions];
 answers = [];
 
 my_dict = {};
+sol_dict = {};
 
 for x in xrange(0,len(questions)):
 	que = questions[x].split(",");
 	answers.append("-".join(que[0:2]));
-	questions[x] = " ".join(que[2:]);
+	questions[x] = " ".join(que[2:len(que)-1]);
 
 	if my_dict.has_key("-".join(que[0:2])):
 		my_dict["-".join(que[0:2])].append(questions[x]);
@@ -38,8 +39,13 @@ for x in xrange(0,len(questions)):
 		my_dict["-".join(que[0:2])] = [];
 		my_dict["-".join(que[0:2])].append(questions[x]);
 
+	print(que[-1])
+	print(questions[x])
+	sol_dict[questions[x]] = que[-1];
+
 
 joblib.dump(my_dict, 'my_dict.pkl')
+joblib.dump(sol_dict,'sol_dict.pkl')
 
 questions = [x.lower().translate(replace_punctuation) for x in questions];
 

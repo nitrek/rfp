@@ -82,6 +82,7 @@ def print_ans(ans):
    res_ans2.configure(text = ans[margin+100:margin+200]);
    res_ans3.configure(text = ans[margin+200:margin+300]);
    res_ans4.configure(text = ans[margin+300:margin+400]);
+   res.configure(text = qvariable.get().split("     ")[0]);
 
 def sigmoid(lst):
    sum = 0;
@@ -96,6 +97,7 @@ def sigmoid(lst):
 
 
 def newQuery():
+   res.configure(text = "")
    res_ans.configure(text = "")
    res_ans1.configure(text = "")
    res_ans2.configure(text = "")
@@ -122,7 +124,7 @@ def change_dropdown(*args):
 
 # on change dropdown value
 def qchange_dropdown(*args):
-   print_ans(qvariable.get());
+   print_ans(sol_dict[qvariable.get().split("     ")[0]]);
 
 def reset_option_menu(options, index=None):
    menu = w["menu"]
@@ -154,6 +156,7 @@ if __name__ == '__main__':
    clf = joblib.load('clf.pkl') 
    vectorizer = joblib.load('vectorizer.pkl')
    my_dict = joblib.load('my_dict.pkl')
+   sol_dict = joblib.load('sol_dict.pkl')
 
    last_question = "";
 
