@@ -41,7 +41,7 @@ for x in xrange(0,len(questions)):
 
 	print(que[-1])
 	print(questions[x])
-	sol_dict[questions[x]] = que[-1];
+	sol_dict[questions[x].strip()] = que[-1];
 
 
 joblib.dump(my_dict, 'my_dict.pkl')

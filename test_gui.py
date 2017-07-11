@@ -65,6 +65,8 @@ def onClick(i):
 
       OPTIONS = [x for (y,x) in sorted(zip(prob,OPTIONS), reverse=True)]
       reset_option_menu(OPTIONS, 0)
+   elif i==1:
+      clf.partial_fit(vectorizer.transform([last_question]),[variable.get().split("     ")[0]]);
 
 
 
@@ -208,6 +210,8 @@ if __name__ == '__main__':
    qvariable.trace('w', qchange_dropdown)
    qw.pack()
 
+   feed = Button(root, text='Positive Feedback', height=2, width=25, command=lambda i=1: onClick(1), bg="gold")
+   feed.pack()
    root.protocol('WM_DELETE_WINDOW', quit)
    root.mainloop()
 
