@@ -39,8 +39,6 @@ for x in xrange(0,len(questions)):
 		my_dict["-".join(que[0:2])] = [];
 		my_dict["-".join(que[0:2])].append(questions[x]);
 
-	print(que[-1])
-	print(questions[x])
 	sol_dict[questions[x].strip()] = que[-1];
 
 

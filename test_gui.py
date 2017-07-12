@@ -21,7 +21,7 @@ def stem(sentence):
 
 
 def getScore(que):
-   print(que);
+   #print(que);
    stemmed_que = stem(que).split(" ");
    question = last_question.split(" ");
 
@@ -61,11 +61,34 @@ def onClick(i):
       prob = sigmoid(prob[0]);
 
       OPTIONS = list(clf.classes_);      
+
+      fOPTIONS = list();    
+      fprob = []; 
+      sum = 0.001;
+
+      for x in xrange(0,len(OPTIONS)):
+         temp = list(my_dict[OPTIONS[x]]); 
+         fOPTIONS.extend(temp);   
+         
+         for y in xrange(0,len(temp)):
+            score = getScore(temp[y])*prob[x];
+            fprob.append(score)
+            sum = sum + score;
+
+      for x in xrange(0,len(fOPTIONS)):
+         fprob[x] = fprob[x]*100/sum;
+         fOPTIONS[x] = fOPTIONS[x] + "     " + str(fprob[x]);
+
+      fOPTIONS = [x for (y,x) in sorted(zip(fprob,fOPTIONS), reverse=True)]  
+      freset_option_menu(fOPTIONS[:5], 0)         
+
       for x in xrange(0,len(prob)):
          OPTIONS[x] = OPTIONS[x] + "     " + str(prob[x]);
 
       OPTIONS = [x for (y,x) in sorted(zip(prob,OPTIONS), reverse=True)]
       reset_option_menu(OPTIONS, 0)
+
+
    elif i==1:
       clf.partial_fit(vectorizer.transform([last_question]),[variable.get().split("     ")[0]]);
 
@@ -127,7 +150,17 @@ def change_dropdown(*args):
 
 # on change dropdown value
 def qchange_dropdown(*args):
+   if qvariable.get().split("     ")[0]=="que":
+      print_ans("");
+      return;
    print_ans(sol_dict[qvariable.get().split("     ")[0]]);
+
+def fchange_dropdown(*args):
+   if fvariable.get().split("     ")[0]=="que":
+      print_ans("");
+      return;
+   print_ans(sol_dict[fvariable.get().split("     ")[0]]);
+
 
 def reset_option_menu(options, index=None):
    menu = w["menu"]
@@ -148,6 +181,16 @@ def qreset_option_menu(options, index=None):
                             qvariable.set(value))
    if index is not None:
       qvariable.set(options[index])
+
+def freset_option_menu(options, index=None):
+   menu = fw["menu"]
+   menu.delete(0, "end")
+   for string in options:
+      menu.add_command(label=string, 
+                       command=lambda value=string:
+                            fvariable.set(value))
+   if index is not None:
+      fvariable.set(options[index])
 
 if __name__ == '__main__':
 
@@ -213,6 +256,16 @@ if __name__ == '__main__':
 
    feed = Button(root, text='Positive Feedback', height=2, width=25, command=lambda i=1: onClick(1), bg="gold")
    feed.pack()
+
+   fOPTIONS = ["que"];
+   fvariable = StringVar(root)
+   fvariable.set(fOPTIONS[0]) # default value
+
+   fw = apply(OptionMenu, (root, fvariable) + tuple(fOPTIONS))
+
+   fvariable.trace('w', fchange_dropdown)
+   fw.pack()
+
    root.protocol('WM_DELETE_WINDOW', quit)
    root.mainloop()
 
