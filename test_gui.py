@@ -21,6 +21,7 @@ def stem(sentence):
 
 
 def getScore(que):
+   print(que);
    stemmed_que = stem(que).split(" ");
    question = last_question.split(" ");
 
@@ -110,7 +111,7 @@ def newQuery():
 def change_dropdown(*args):
    qOPTIONS = list(my_dict[((variable.get()).split("    "))[0]]);   
    prob = []; 
-   sum = 0.01;
+   sum = 0.001;
    for x in xrange(0,len(qOPTIONS)):
       score = getScore(qOPTIONS[x]);
       prob.append(score)

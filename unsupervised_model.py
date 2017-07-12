@@ -23,33 +23,21 @@ replace_punctuation = string.maketrans(punc, ' '*len(punc));
 operators = set(["why","what","how","when","where","who","which","whose","whom","whether","whatsoever","whither","whence"])
 stop = set(stopwords.words('english'))-operators;
 
-with open('new_questions', 'r') as qfile:
+with open('unsupervised_questions', 'r') as qfile:
     questions = qfile.readlines();
 
 qfile.close();
 
 questions = [x.strip()for x in questions];
 
-answers = [];
-
 for x in xrange(0,len(questions)):
 	que = questions[x].split(",");
-	ans = "-".join(que[0:2]);
 
-	answers.append(ans);
-	questions[x] = " ".join(que[2:len(que)-1]);
-
-	if my_dict.has_key("-".join(que[0:2])):
-		my_dict["-".join(que[0:2])].append(questions[x]);
-	else:
-		my_dict["-".join(que[0:2])] = [];
-		my_dict["-".join(que[0:2])].append(questions[x]);
-
-	print(que[-1])
-	print(questions[x])
+	questions[x] = " ".join(que[:len(que)-1]);
 	sol_dict[questions[x].strip()] = que[-1];
 
-joblib.dump(my_dict, 'my_dict.pkl')
+backup_questions = list(questions);
+
 joblib.dump(sol_dict,'sol_dict.pkl')
 
 questions = [x.lower().translate(replace_punctuation) for x in questions];
@@ -65,11 +53,23 @@ for line in xrange(0,len(questions)):
         singles.append(lmtzr.lemmatize(plural))
     questions[line] = ' '.join(singles)
 
+answers = clf.predict(vectorizer.transform(questions)).tolist();
+
+for x in xrange(0,len(questions)):
+
+	if my_dict.has_key(answers[x]):
+		my_dict[answers[x]].append(backup_questions[x]);
+	else:
+		my_dict[answers[x]] = [];
+		my_dict[answers[x]].append(backup_questions[x]);
+
+joblib.dump(my_dict, 'my_dict.pkl')
+
 nltk_questions = [];
 nltk_answers = [];
 
 for sentence in xrange(0,len(questions)):
-	#print(sentence);
+
 	list_x = questions[sentence].split(" ");
 
 	list_of_list = [];
@@ -99,17 +99,13 @@ nltk_questions = [x.strip().lower().replace("_", " ")for x in nltk_questions];
 
 answers.extend(nltk_answers);
 y_train = answers;
-#print(y_train)
 
 questions.extend(nltk_questions);
 
-#print(questions);
 print(len(questions))
 
 X_train = vectorizer.transform(questions);
 
-#score = cross_val_score(clf, X_train, y_train, cv=5).mean();
-#print(score)
 clf.partial_fit(X_train, y_train);
 
 joblib.dump(clf, 'clf.pkl')
