@@ -71,7 +71,7 @@ def onClick(i):
          fOPTIONS.extend(temp);   
          
          for y in xrange(0,len(temp)):
-            score = getScore(temp[y])*prob[x];
+            score = (getScore(temp[y])+0.001)*(prob[x]+0.001);
             fprob.append(score)
             sum = sum + score;
 
@@ -90,8 +90,18 @@ def onClick(i):
 
 
    elif i==1:
-      clf.partial_fit(vectorizer.transform([last_question]),[variable.get().split("     ")[0]]);
+      #clf.partial_fit(vectorizer.transform([last_question]),[variable.get().split("     ")[0]]);
+      fque = fvariable.get().split("     ")[0];
+      clf.partial_fit(vectorizer.transform([last_question]), [lazy_search(fque)])
 
+
+def lazy_search(ques):
+	for key in my_dict:
+		for x in my_dict[key]:
+			if x==ques:
+				return key;
+
+	return "key not found"
 
 
 def quit():
